@@ -1,0 +1,50 @@
+import math
+
+def count_patterns_from(firstPoint, length):
+
+    # check length is in permissive range
+    if length-1 not in range(9): return 0
+
+    # set pattern count (i) as global variable
+    global i
+    
+    # initiate pattern count (i) and the current pattern sequence (res):
+    i,res = 0,["A", "B", "C", "D", "E", "F", "G", "H", "I"].index(firstPoint)
+
+    
+    combo([i for i in range(9) if i!=res], min(length-1, 8), [res])
+    return i
+
+# add each unused point to the current pattern sequence and check validity
+# if pattern sequence is valid and length is satisfied update pattern count (i)
+def combo(nums, leng, res):
+    global i
+    if(check(res)):
+        if leng == 0:
+            i += 1
+        else:
+            for n in nums:
+                new_nums = [x for i,x in enumerate(nums) if i!=nums.index(n)]
+                new_res = res + [n]
+                combo(new_nums, leng-1, new_res)
+
+
+# check if the last connection was valid
+def check(res):
+    if len(res) == 1: return True
+    c0,r0 = res[-1] % 3, math.floor(res[-1] / 3)
+    c1,r1 = res[-2] % 3, math.floor(res[-2] / 3)
+
+#   points cannot be obscured
+    seen = c0 in [c1+i for i in [-1, 1]] or r0 in [r1+i for i in [-1, 1]]
+
+#   a long vertical or horizontal connection 'jumps' a point used earlier in the seqence
+    vorh = (r0 == r1 and (r0*3)+1 in res[:-2]) or (c0 == c1 and 3+c0 in res[:-2])
+
+#   a long diagonal connection 'jumps' the central point
+    cent = abs(c0-c1) + abs(r0-r1) == 4 and 4 in res[:-2]
+
+    return seen or vorh or cent
+
+
+
